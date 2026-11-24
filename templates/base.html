@@ -1,0 +1,63 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order-to-Audit System</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+{% if current_user.is_authenticated %}
+<div class="layout">
+    <aside class="sidebar">
+        <h2>SnackFlow</h2>
+        <p class="muted">{{ current_user.role|title }}</p>
+
+        <a href="{{ url_for('dashboard') }}">Dashboard</a>
+        <a href="{{ url_for('orders') }}">Orders</a>
+
+        {% if current_user.role in ['production', 'admin', 'owner'] %}
+        <a href="{{ url_for('purchase') }}">Purchases</a>
+        <a href="{{ url_for('production') }}">Production</a>
+        {% endif %}
+
+        {% if current_user.role in ['admin', 'owner'] %}
+        <a href="{{ url_for('payments') }}">Payments</a>
+        {% endif %}
+
+        {% if current_user.role in ['admin', 'production', 'owner', 'auditor'] %}
+        <a href="{{ url_for('inventory') }}">Inventory</a>
+        {% endif %}
+
+        {% if current_user.role in ['admin', 'owner', 'auditor'] %}
+        <a href="{{ url_for('reports') }}">Reports</a>
+        {% endif %}
+
+        <a href="{{ url_for('logout') }}">Logout</a>
+    </aside>
+
+    <main class="main">
+        <header class="topbar">
+            <span>Order-to-Audit Management</span>
+            <span>{{ current_user.username }}</span>
+        </header>
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                {% for message in messages %}
+                <div class="alert">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+</div>
+{% else %}
+    {% block public_content %}{% endblock %}
+{% endif %}
+
+</body>
+</html>

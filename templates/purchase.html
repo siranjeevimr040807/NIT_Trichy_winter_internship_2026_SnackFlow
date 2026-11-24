@@ -1,0 +1,72 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Purchases</h1>
+<p class="muted">Record incoming raw materials and packaging.</p>
+
+<section class="panel">
+    <h2>New Purchase</h2>
+
+    <form method="POST" class="form-grid">
+        <div>
+            <label>Material</label>
+            <select name="material_id" required>
+                {% for material in materials %}
+                <option value="{{ material.id }}">
+                    {{ material.name }} ({{ material.unit }})
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div>
+            <label>Quantity</label>
+            <input type="number" name="quantity"
+                   step="0.01" min="0.01" required>
+        </div>
+
+        <div>
+            <label>Rate per unit (₹)</label>
+            <input type="number" name="rate"
+                   step="0.01" min="0" required>
+        </div>
+
+        <div class="form-action">
+            <button type="submit">Save Purchase</button>
+        </div>
+    </form>
+</section>
+
+<section class="panel">
+    <h2>Purchase History</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Purchase ID</th>
+                <th>Material ID</th>
+                <th>Quantity</th>
+                <th>Rate</th>
+                <th>Date</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for purchase in purchases %}
+            <tr>
+                <td>#{{ purchase.id }}</td>
+                <td>{{ purchase.material_id }}</td>
+                <td>{{ purchase.quantity }}</td>
+                <td>₹{{ "%.2f"|format(purchase.rate) }}</td>
+                <td>{{ purchase.created_at.strftime('%d-%m-%Y') }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5">No purchases recorded.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+{% endblock %}

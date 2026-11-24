@@ -1,0 +1,96 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Sales Orders</h1>
+<p class="muted">Create, review and manage customer orders.</p>
+
+{% if current_user.role in ['salesman', 'admin', 'owner'] %}
+<section class="panel">
+    <h2>Create New Order</h2>
+
+    <form method="POST" class="form-grid">
+        <div>
+            <label>Customer</label>
+            <select name="customer_id" required>
+                {% for customer in customers %}
+                <option value="{{ customer.id }}">{{ customer.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div>
+            <label>Product</label>
+            <select name="product_id" required>
+                {% for product in products %}
+                <option value="{{ product.id }}">
+                    {{ product.name }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div>
+            <label>Quantity</label>
+            <input type="number" name="quantity" min="1" required>
+        </div>
+
+        <div class="form-action">
+            <button type="submit">Submit Order</button>
+        </div>
+    </form>
+</section>
+{% endif %}
+
+<section class="panel">
+    <h2>Order List</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Order ID</th>
+                <th>Customer ID</th>
+                <th>Quantity</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for order in orders %}
+            <tr>
+                <td>#{{ order.id }}</td>
+                <td>{{ order.customer_id }}</td>
+                <td>{{ order.quantity }}</td>
+                <td>
+                    <span class="status">{{ order.status }}</span>
+                </td>
+                <td class="actions">
+                    {% if current_user.role in ['admin', 'owner'] %}
+                        {% if order.status == 'Submitted' %}
+                        <form method="POST"
+                              action="{{ url_for('approve_order', order_id=order.id) }}">
+                            <button class="small-btn" type="submit">
+                                Approve
+                            </button>
+                        </form>
+                        {% elif order.status == 'Approved' %}
+                        <form method="POST"
+                              action="{{ url_for('dispatch_order', order_id=order.id) }}">
+                            <button class="small-btn" type="submit">
+                                Dispatch
+                            </button>
+                        </form>
+                        {% endif %}
+                    {% endif %}
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5">No orders available.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+{% endblock %}

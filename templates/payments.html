@@ -1,0 +1,73 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Payments</h1>
+<p class="muted">Record collections and monitor outstanding invoices.</p>
+
+<section class="panel">
+    <h2>Record Payment</h2>
+
+    <form method="POST" class="form-grid">
+        <div>
+            <label>Invoice</label>
+            <select name="invoice_id" required>
+                {% for invoice in invoices %}
+                {% if invoice.total_paise > invoice.paid_paise %}
+                <option value="{{ invoice.id }}">
+                    {{ invoice.number }} —
+                    Outstanding ₹{{ "%.2f"|format(
+                        (invoice.total_paise - invoice.paid_paise) / 100
+                    ) }}
+                </option>
+                {% endif %}
+                {% endfor %}
+            </select>
+        </div>
+
+        <div>
+            <label>Payment Amount (₹)</label>
+            <input type="number" name="amount"
+                   step="0.01" min="0.01" required>
+        </div>
+
+        <div class="form-action">
+            <button type="submit">Record Payment</button>
+        </div>
+    </form>
+</section>
+
+<section class="panel">
+    <h2>Invoice Outstanding</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Invoice</th>
+                <th>Total</th>
+                <th>Paid</th>
+                <th>Outstanding</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for invoice in invoices %}
+            <tr>
+                <td>{{ invoice.number }}</td>
+                <td>₹{{ "%.2f"|format(invoice.total_paise / 100) }}</td>
+                <td>₹{{ "%.2f"|format(invoice.paid_paise / 100) }}</td>
+                <td>
+                    ₹{{ "%.2f"|format(
+                        (invoice.total_paise - invoice.paid_paise) / 100
+                    ) }}
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="4">No invoices available.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+{% endblock %}

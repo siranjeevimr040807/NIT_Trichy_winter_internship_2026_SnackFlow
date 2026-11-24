@@ -1,0 +1,110 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Production</h1>
+<p class="muted">Record production output and material usage.</p>
+
+<section class="panel">
+    <h2>Record Production Batch</h2>
+
+    <form method="POST">
+        <div class="form-grid">
+            <div>
+                <label>Product</label>
+                <select name="product_id" required>
+                    {% for product in products %}
+                    <option value="{{ product.id }}">
+                        {{ product.name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <label>Actual Good Output</label>
+                <input type="number" name="output" min="1" required>
+            </div>
+
+            <div>
+                <label>Damaged Pouches</label>
+                <input type="number" name="damaged"
+                       step="0.01" min="0" value="0">
+            </div>
+
+            <div>
+                <label>Cartons Used</label>
+                <input type="number" name="cartons"
+                       step="0.01" min="0" value="0">
+            </div>
+
+            <div>
+                <label>Labour Cost (₹)</label>
+                <input type="number" name="labour"
+                       step="0.01" min="0" required>
+            </div>
+
+            <div>
+                <label>Gas / Power Cost (₹)</label>
+                <input type="number" name="power"
+                       step="0.01" min="0" required>
+            </div>
+        </div>
+
+        <h3>Actual Material Consumption</h3>
+
+        <div class="form-grid">
+            {% for material in materials %}
+            <div>
+                <label>{{ material.name }} ({{ material.unit }})</label>
+                <input type="number"
+                       name="material_{{ material.id }}"
+                       step="0.01"
+                       min="0"
+                       placeholder="Enter actual quantity">
+            </div>
+            {% endfor %}
+        </div>
+
+        <button type="submit">Save Production</button>
+    </form>
+</section>
+
+<section class="panel">
+    <h2>Production History</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Run ID</th>
+                <th>Product ID</th>
+                <th>Expected Output</th>
+                <th>Actual Output</th>
+                <th>Yield Variance</th>
+                <th>Cost / Packet</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for run in runs %}
+            <tr>
+                <td>#{{ run.id }}</td>
+                <td>{{ run.product_id }}</td>
+                <td>{{ run.expected_output }}</td>
+                <td>{{ run.actual_output }}</td>
+                <td>
+                    {{ "%.2f"|format(run.yield_variance) }}%
+                </td>
+                <td>
+                    ₹{{ "%.2f"|format(run.cost_per_packet) }}
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="6">No production records yet.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+{% endblock %}

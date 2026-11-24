@@ -1,0 +1,107 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Reports</h1>
+<p class="muted">Sales, payments and production summary.</p>
+
+<div class="stats">
+    <div class="stat-card">
+        <p>Total Invoiced Sales</p>
+        <h2>₹{{ "%.2f"|format(sales_total / 100) }}</h2>
+    </div>
+
+    <div class="stat-card">
+        <p>Outstanding</p>
+        <h2>₹{{ "%.2f"|format(outstanding / 100) }}</h2>
+    </div>
+
+    <div class="stat-card">
+        <p>Production Runs</p>
+        <h2>{{ runs|length }}</h2>
+    </div>
+</div>
+
+<section class="panel">
+    <h2>Export Reports</h2>
+
+    <div class="export-links">
+        <a href="{{ url_for('export_sales') }}">Download Sales CSV</a>
+        <a href="{{ url_for('export_stock') }}">Download Stock CSV</a>
+    </div>
+</section>
+
+<section class="panel">
+    <h2>Sales Invoices</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Invoice</th>
+                <th>Taxable Value</th>
+                <th>GST</th>
+                <th>Total</th>
+                <th>Paid</th>
+                <th>PDF</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for invoice in invoices %}
+            <tr>
+                <td>{{ invoice.number }}</td>
+                <td>₹{{ "%.2f"|format(invoice.taxable_paise / 100) }}</td>
+                <td>
+                    ₹{{ "%.2f"|format(
+                        (invoice.cgst_paise + invoice.sgst_paise + invoice.igst_paise) / 100
+                    ) }}
+                </td>
+                <td>₹{{ "%.2f"|format(invoice.total_paise / 100) }}</td>
+                <td>₹{{ "%.2f"|format(invoice.paid_paise / 100) }}</td>
+                <td>
+                    <a href="{{ url_for('invoice_pdf', invoice_id=invoice.id) }}">
+                        Download
+                    </a>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="6">No invoices available.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+
+<section class="panel">
+    <h2>Production Summary</h2>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Run ID</th>
+                <th>Expected</th>
+                <th>Actual</th>
+                <th>Variance</th>
+                <th>Cost / Packet</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for run in runs %}
+            <tr>
+                <td>#{{ run.id }}</td>
+                <td>{{ run.expected_output }}</td>
+                <td>{{ run.actual_output }}</td>
+                <td>{{ "%.2f"|format(run.yield_variance) }}%</td>
+                <td>₹{{ "%.2f"|format(run.cost_per_packet) }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5">No production runs available.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</section>
+{% endblock %}
